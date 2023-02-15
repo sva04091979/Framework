@@ -8,3 +8,6 @@
 
 #define DELETE(ptr) do {DEL(ptr); ptr=NULL;} while(false)
 #define DLOG Print
+
+double Ask(const string& symbol) {return SymbolInfoDouble(symbol,SYMBOL_ASK);}
+double Bid(const string& symbol) {return SymbolInfoDouble(symbol,SYMBOL_BID);}

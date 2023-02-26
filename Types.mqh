@@ -8,16 +8,16 @@
 
 #define _tVoidPtr _tSizeT
 
-enum ECompare{
-   ECompareLess=-1,
-   ECompareEqually=0,
-   ECompareMore=1
+enum EDirect{
+   EDirectDown=-1,
+   ENoDirect=0,
+   EDirectUp=1
 };
 
-#define _tCompare ECompare
-#define _eMore ECompareMore
-#define _eEqually ECompareEqually
-#define _eLess ECompareLess
+#define _tCompare EDirect
+#define _eMore EDirectUp
+#define _eEqually ENoDirect
+#define _eLess EDirectDown
 
 #define _tDirect _tCompare
 #define _eUp _eMore

@@ -9,7 +9,7 @@ private:
    Type* m_ptr;
 public:
    TSharedPtr():m_ptr(NULL),m_counter(NULL){}
-   TSharedPtr(Type* ptr):m_ptr(ptr),m_counter(!ptr?NULL:new __tCounter()){m_counter.val=1;}
+   TSharedPtr(Type* ptr):m_ptr(ptr),m_counter(!ptr?NULL:new __tCounter()){if (m_counter) m_counter.val=1;}
    TSharedPtr(Type* ptr,__tCounter* _count):m_ptr(ptr),m_counter(!ptr?NULL:_count){if (m_counter!=NULL) ++m_counter.val;}
    TSharedPtr(TSharedPtr<Type> &other);
   ~TSharedPtr() {if (m_counter!=NULL&&!--m_counter.val) {DEL(m_ptr); DEL(m_counter);}}
@@ -24,6 +24,7 @@ public:
    void operator =(Type* ptr) {Reset(ptr);}
    _tSizeT Count() {return !m_counter?0:m_counter.val;}
    bool operator !() {return !m_ptr;}
+   bool IsInit() const {return m_ptr!=NULL;}
 };
 //--------------------------------------------------------------------------
 template<typename Type>

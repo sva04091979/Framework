@@ -7,3 +7,4 @@
 #endif
 
 #define DELETE(ptr) do {DEL(ptr); ptr=NULL;} while(false)
+#define DLOG Print

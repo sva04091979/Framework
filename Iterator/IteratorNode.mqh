@@ -118,7 +118,130 @@ private:
 template<typename Type>
 const uint TVectorHolder::s_maxSize=INT_MAX;
 
+template<typename Type>
+class TDequeNode{
+public:
+   static const uint s_size;
+   TIteratorArrayNode<Type> arr[];
+   TDequeNode(){ArrayResize(arr,s_size);}
+   bool operator !() {return ArraySize(arr)!=s_size;}
+};
 
+template<typename Type>
+const uint TDequeNode::s_size=100;
+
+template<typename Type>
+class TDequeHolder:public IArrayContainerHolder<Type>{
+   static const uint s_maxBlocks;
+   uint m_work[];
+   uint m_reserve[]
+   TDequeNode<Type>* m_node[];
+   TDequeNode<Type>* m_reserveNode[];
+   uint m_workNodeSize;
+   uint m_reserveNodeSize;
+   uint m_reserveNodeReserve;
+   uint m_front;
+   uint m_back;
+public:
+   TDequeHolder():m_workNodeSize(0),m_reserveNodeSize(0),m_reserveNodeReserve(0),m_front(0),m_back(0){}
+   
+   ~TDequeHolder(){
+      for(uint i=0;i<m_workNodeSize;delete m_workNode[i++]);
+      for(uint i=0;i<m_reserveNodeSize;delete m_reserveNode[i++]);
+   }
+   
+   TIteratorArrayNode<Type>* Get(int id) const override{
+      if (!m_workNodeSize) return NULL;
+      int i=(int)m_front+id;
+      int ii=i/(int)TDequeNode<Type>::s_size;
+      if (ii<(int)m_workNodeSize){
+         i%=(int)TDequeNode<Type>::s_size;
+         return &(m_workNode[ii].arr[i]);
+      }
+      return NULL;
+   }
+   
+   uint Size() const override{
+      if (!!m_workNodeSize) return 0;
+      uint ret=m_workNodeSize>2?TDequeNode<Type>::s_size*(m_workNodeSize-2):0;
+      if (ret) return ret+TDequeNode<Type>::s_size-m_front+m_back+1;
+      return m_workNodeSize==1?m_back-m_front+1:TDequeNode<Type>::s_size-m_front+m_back+1;
+   }
+   
+   uint Capacity() const override{return (m_workNodeSize+m_reserveNodeSize)*TDequeNode<Type>::s_size;}
+   
+   uint ShrinkToFit() override{
+      m_reserveNodeReserve=m_reserveNodeSize=ArrayResize(m_reserveNode,0);
+      return Capacity();
+   }
+   
+   uint Reserve(uint reserve) override{
+      uint max=s_maxBlocks-m_reserveNodeSize-m_workNodeSize;
+      if (max>0){
+         uint capacity=Capacity();
+         uint needed=reserve<capacity?0:reserve-capacity;
+         if (needed>0){
+            uint newBlocks=MathMin(needed/TDequeNode<Type>::s_size+1,max);
+            uint haveReserve=m_reserveNodeReserve-m_reserveNodeSize;
+            uint needMake=newBlocks<haveReserve?0:haveReserve-newBlocks;
+            if (needMake>0){
+               m_reserveNodeSize=m_reserveNodeReserve=ArrayResize(m_reserveNode,m_reserveNodeReserve+needMake);
+            }
+         }
+      }
+      return Capacity();
+   }
+   
+   TIteratorArrayNode<Type>* PushBack() override{
+      if (!m_workNodeSize){
+         if (!AddRight())
+            return NULL;
+         m_front=m_back=TDequeNode<Type>::s_size/2;
+      }
+      else if (++m_back==TDequeNode<Type>::s_size){
+         if (!AddRight())
+            return NULL;
+         m_back=0;
+      }
+      return &m_workNode[m_workNodeSize-1].arr[m_back];
+   }
+   
+   TIteratorArrayNode<Type>* PushFront() override{
+      if (!m_workNodeSize){
+         if (!AddRight())
+            return NULL;
+         m_front=m_back=TDequeNode<Type>::s_size/2;
+      }
+      else if (m_front==0){
+         if (!AddLeft())
+            return NULL;
+         m_front=TDequeNode<Type>::s_size-1;
+      }
+      return &m_workNode[0].arr[m_front];
+   }
+   
+   TIteratorArrayNode<Type>* Insert(uint i) override{
+      if (++m_back==TDequeNode<Type>::s_size){
+         if (!AddRight())
+            return NULL;
+         m_back=0;  
+      }
+      ShiftRight(i,1);
+      return Get(i);
+   }
+   
+   void PopBack() override;
+   void PopFront() override;
+   void Erase(uint i) override;
+private:
+   bool AddLeft();
+   bool AddRight();
+   void ShiftLeft(uint i,uint count);
+   void ShiftRight(uint i,uint count);
+};
+
+template<typename Type>
+const uint TDequeHolder::s_maxBlocks=INT_MAX/TDequeNode<Type>::s_size;
 
 template<typename Type>
 class TIteratorArrayNode:public TIteratorNode<Type>{

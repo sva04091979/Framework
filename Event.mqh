@@ -136,11 +136,12 @@ private:
    }
 };
 
+#define _tEventDecl(name) Event##name
 
-#define _tEvent0(name) \
+#define __tEvent0(STAT,name) \
 typedef void(*__##name##_funcGlobal)();\
 typedef void(*__##name##_funcObj)(void*);\
-class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
+STAT class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
    void Invoke(){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
@@ -150,10 +151,13 @@ public:\
       }\
 } name
 
-#define _tEvent1(name,Type1) \
+#define _tEvent0(name) __tEvent0(,name)
+#define _tStaticEvent0(name) __tEvent0(static,name)
+
+#define __tEvent1(STAT,name,Type1) \
 typedef void(*__##name##_funcGlobal)(Type1);\
 typedef void(*__##name##_funcObj)(void*,Type1);\
-class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
+STAT class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
    void Invoke(Type1 p1){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
@@ -163,8 +167,11 @@ public:\
       }\
 } name
 
-#define _tEvent2(name,Type1,Type2) \
-typedef void(*__##name##_funcGlobal)(Type1,Type2);\
+#define _tEvent1(name,Type1) __tEvent1(,name,Type1)
+#define _tStaticEvent1(name,Type1) __tEvent1(static,name,Type1)
+
+#define __tEvent2(STAT,name,Type1,Type2) \
+STAT typedef void(*__##name##_funcGlobal)(Type1,Type2);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
@@ -176,10 +183,13 @@ public:\
       }\
 } name
 
-#define _tEvent3(name,Type1,Type2,Type3) \
+#define _tEvent2(name,Type1,Type2) __tEvent2(,name,Type1,Type2)
+#define _tStaticEvent2(name,Type1,Type2) __tEvent2(static,name,Type1,Type2)
+
+#define __tEvent3(STAT,name,Type1,Type2,Type3) \
 typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3);\
-class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
+STAT class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
    void Invoke(Type1 p1,Type2 p2,Type2 p3){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
@@ -189,7 +199,10 @@ public:\
       }\
 } name
 
-#define _tEvent4(name,Type1,Type2,Type3,Type4) \
+#define _tEvent3(name,Type1,Type2,Type3) __tEvent3(,name,Type1,Type2,Type3)
+#define _tStaticEvent3(name,Type1,Type2,Type3) __tEvent3(static,name,Type1,Type2,Type3)
+
+#define __tEvent4(name,Type1,Type2,Type3,Type4) \
 typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3,Type4);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3,Type4);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
@@ -202,7 +215,10 @@ public:\
       }\
 } name
 
-#define _tEvent5(name,Type1,Type2,Type3,Type4,Type5) \
+#define _tEvent4(name,Type1,Type2,Type3,Type4) __tEvent4(,name,Type1,Type2,Type3,Type4)
+#define _tStaticEvent4(name,Type1,Type2,Type3,Type4) __tEvent4(static,name,Type1,Type2,Type3,Type4)
+
+#define __tEvent5(name,Type1,Type2,Type3,Type4,Type5) \
 typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3,Type4,Type5);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3,Type4,Type5);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
@@ -214,3 +230,6 @@ public:\
          else it.m_obj.func(it.m_obj.it,p1,p2,p3,p4,p5);\
       }\
 } name
+
+#define _tEvent5(name,Type1,Type2,Type3,Type4,Type5) __tEvent5(,name,Type1,Type2,Type3,Type4,Type5)
+#define _tStaticEvent5(name,Type1,Type2,Type3,Type4,Type5) __tEvent5(static,name,Type1,Type2,Type3,Type4,Type5)

@@ -1,5 +1,3 @@
-#include "Types.mqh"
-
 #ifdef __DEBUG__
    #define DEL(ptr) do if (ptr) delete ptr; while(false)
 #else
@@ -7,3 +5,6 @@
 #endif
 
 #define DELETE(ptr) do {DEL(ptr); ptr=NULL;} while(false)
+
+#define DLOG Print
+#define QUOTES(text) #text

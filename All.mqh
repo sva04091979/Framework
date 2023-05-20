@@ -1,5 +1,6 @@
-#include "Common/Mask.mqh"
 #include "Common/Event.mqh"
+#include "Common/Mask.mqh"
 #include "Env.mqh"
 #include "Math.mqh"
 #include "Memory.mqh"
+#include "Trade.mqh"

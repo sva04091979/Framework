@@ -1,3 +1,3 @@
-#include "Mask.mqh"
+#include "Common/Mask.mqh"
+#include "Common/Event.mqh"
 #include "Math.mqh"
-#include "Event.mqh"

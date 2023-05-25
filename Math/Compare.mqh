@@ -1,4 +1,4 @@
-#include "../Types.mqh"
+#include "../Common/Types.mqh"
 
 template<typename Type1,typename Type2>
 _tCompare Compare(Type1 l,Type2 r){

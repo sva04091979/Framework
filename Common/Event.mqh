@@ -139,7 +139,7 @@ private:
 #define _tEventDecl(name) Event##name
 
 #define __tEvent0(STAT,name) \
-typedef void(*__##name##_funcGlobal)();\
+typedef void(*__##name##_funcGlobal)(void);\
 typedef void(*__##name##_funcObj)(void*);\
 STAT class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
@@ -171,9 +171,9 @@ public:\
 #define _tStaticEvent1(name,Type1) __tEvent1(static,name,Type1)
 
 #define __tEvent2(STAT,name,Type1,Type2) \
-STAT typedef void(*__##name##_funcGlobal)(Type1,Type2);\
+typedef void(*__##name##_funcGlobal)(Type1,Type2);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2);\
-class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
+STAT class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
    void Invoke(Type1 p1,Type2 p2){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
@@ -191,7 +191,7 @@ typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3);\
 STAT class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
-   void Invoke(Type1 p1,Type2 p2,Type2 p3){\
+   void Invoke(Type1 p1,Type2 p2,Type3 p3){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
       while((it=Next(it))!=NULL)\
          if (it.IsGlobal()) it.m_global.func(p1,p2,p3);\
@@ -207,7 +207,7 @@ typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3,Type4);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3,Type4);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
-   void Invoke(Type1 p1,Type2 p2,Type2 p3,Type4 p4){\
+   void Invoke(Type1 p1,Type2 p2,Type3 p3,Type4 p4){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
       while((it=Next(it))!=NULL)\
          if (it.IsGlobal()) it.m_global.func(p1,p2,p3,p4);\
@@ -223,7 +223,7 @@ typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3,Type4,Type5);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3,Type4,Type5);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
 public:\
-   void Invoke(Type1 p1,Type2 p2,Type2 p3,Type4 p4,Type5 p5){\
+   void Invoke(Type1 p1,Type2 p2,Type3 p3,Type4 p4,Type5 p5){\
       STD_EventStructHolder<__##name##_funcGlobal,__##name##_funcObj>* it=NULL;\
       while((it=Next(it))!=NULL)\
          if (it.IsGlobal()) it.m_global.func(p1,p2,p3,p4,p5);\

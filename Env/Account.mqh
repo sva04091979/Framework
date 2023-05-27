@@ -17,6 +17,20 @@ public:
    static string ServerName() {return m_server;}
    static string Currency() {return m_currency;};
    static string CompanyName() {return m_company;}
+   static double Ballance() {return AccountInfoDouble(ACCOUNT_BALANCE);}
+   static double Credit() {return AccountInfoDouble(ACCOUNT_CREDIT);}
+   static double Profit() {return AccountInfoDouble(ACCOUNT_PROFIT);}
+   static double Equity() {return AccountInfoDouble(ACCOUNT_EQUITY);}
+   static double Margin() {return AccountInfoDouble(ACCOUNT_MARGIN);}
+   static double MarginFree() {return AccountInfoDouble(ACCOUNT_MARGIN_FREE);}
+   static double MarginLevel() {return AccountInfoDouble(ACCOUNT_MARGIN_LEVEL);}
+   static double MarginCall() {return AccountInfoDouble(ACCOUNT_MARGIN_SO_CALL);}
+   static double MarginStopOut() {return AccountInfoDouble(ACCOUNT_MARGIN_SO_SO);}
+   static double MarginInitial() {return AccountInfoDouble(ACCOUNT_MARGIN_INITIAL);}
+   static double MarginMaintenance() {return AccountInfoDouble(ACCOUNT_MARGIN_MAINTENANCE);}
+   static double Assets() {return AccountInfoDouble(ACCOUNT_ASSETS);}
+   static double Liabilities() {return AccountInfoDouble(ACCOUNT_LIABILITIES);}
+   static double CommissionBlocked() {return AccountInfoDouble(ACCOUNT_COMMISSION_BLOCKED);}
 private:
    static const string m_clientName;
    static const string m_server;

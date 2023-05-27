@@ -13,7 +13,15 @@ public:
    static int CurrencyDigits() {return m_curDigits;}
    static bool IsFIFO() {return m_isFIFO;}
    static bool IsHedgeAlloed() {return m_isHedgeAlloed;}
+   static string ClientName() {return m_clientName;}
+   static string ServerName() {return m_server;}
+   static string Currency() {return m_currency;};
+   static string CompanyName() {return m_company;}
 private:
+   static const string m_clientName;
+   static const string m_server;
+   static const string m_currency;
+   static const string m_company;
    static const long m_id;
    static const ENUM_ACCOUNT_TRADE_MODE m_tradeMode;
    static const ENUM_ACCOUNT_MARGIN_MODE m_marginMode;
@@ -28,3 +36,7 @@ const ENUM_ACCOUNT_MARGIN_MODE TAccount::m_marginMode=(ENUM_ACCOUNT_MARGIN_MODE)
 const int TAccount::m_curDigits=(int)AccountInfoInteger(ACCOUNT_CURRENCY_DIGITS);
 const bool TAccount::m_isFIFO=(bool)AccountInfoInteger(ACCOUNT_FIFO_CLOSE);
 const bool TAccount::m_isHedgeAlloed=(bool)AccountInfoInteger(ACCOUNT_HEDGE_ALLOWED);
+const string TAccount::m_clientName=AccountInfoString(ACCOUNT_NAME);
+const string TAccount::m_server=AccountInfoString(ACCOUNT_SERVER);
+const string TAccount::m_currency=AccountInfoString(ACCOUNT_CURRENCY);
+const string TAccount::m_company=AccountInfoString(ACCOUNT_COMPANY);

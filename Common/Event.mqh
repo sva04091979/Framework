@@ -202,7 +202,7 @@ public:\
 #define _tEvent3(name,Type1,Type2,Type3) __tEvent3(,name,Type1,Type2,Type3)
 #define _tStaticEvent3(name,Type1,Type2,Type3) __tEvent3(static,name,Type1,Type2,Type3)
 
-#define __tEvent4(name,Type1,Type2,Type3,Type4) \
+#define __tEvent4(STAT,name,Type1,Type2,Type3,Type4) \
 typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3,Type4);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3,Type4);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\
@@ -218,7 +218,7 @@ public:\
 #define _tEvent4(name,Type1,Type2,Type3,Type4) __tEvent4(,name,Type1,Type2,Type3,Type4)
 #define _tStaticEvent4(name,Type1,Type2,Type3,Type4) __tEvent4(static,name,Type1,Type2,Type3,Type4)
 
-#define __tEvent5(name,Type1,Type2,Type3,Type4,Type5) \
+#define __tEvent5(STAT,name,Type1,Type2,Type3,Type4,Type5) \
 typedef void(*__##name##_funcGlobal)(Type1,Type2,Type3,Type4,Type5);\
 typedef void(*__##name##_funcObj)(void*,Type1,Type2,Type3,Type4,Type5);\
 class Event##name:public STD_EventBase<__##name##_funcGlobal,__##name##_funcObj>{\

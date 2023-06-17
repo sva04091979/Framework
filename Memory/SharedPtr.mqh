@@ -100,5 +100,3 @@ void Swap(TSharedPtr<Type>& l,TSharedPtr<Type>& r) {l.Swap(r);}
 class A{
    int a;
 };
-
-TSharedPtr<A> x(new A);

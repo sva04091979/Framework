@@ -1,2 +1,2 @@
 #include "Memory/UniquePtr.mqh"
-#include "Memory/WeakPtr.mqh"
+#include "Memory/EnableSharedFromThis.mqh"

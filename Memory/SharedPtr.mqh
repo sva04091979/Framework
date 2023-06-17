@@ -15,7 +15,7 @@ private:
    Type* m_ptr;
 public:
    TSharedPtr():m_ptr(NULL),m_counter(NULL){}
-   TSharedPtr(Type* ptr):m_ptr(ptr),m_counter(!ptr?NULL:new __TSharedLinkCounter()){if (m_counter) ++m_counter.shared;}
+   TSharedPtr(Type* ptr);
    TSharedPtr(TSharedPtr<Type> &other);
    TSharedPtr(Type* ptr,__TSharedLinkCounter* _count):m_ptr(ptr),m_counter(!ptr?NULL:_count){if (m_counter!=NULL) ++m_counter.shared;}
   ~TSharedPtr();
@@ -34,6 +34,8 @@ public:
    bool IsInit() const {return m_ptr!=NULL;}
    bool operator ==(const TSharedPtr<Type>& other) const {return m_ptr==other.m_ptr;}
    bool operator !=(const TSharedPtr<Type>& other) const {return m_ptr!=other.m_ptr;}
+private:
+   void Decrease();
 };
 //--------------------------------------------------------------------------
 template<typename Type>
@@ -42,32 +44,40 @@ TSharedPtr::TSharedPtr(TSharedPtr<Type> &other){
    m_counter=other.m_counter;
    if (m_counter!=NULL) ++m_counter.shared;
 }
+//--------------------------------------------------------------------------
+template<typename Type>
+TSharedPtr::TSharedPtr(Type* ptr):
+   m_ptr(ptr),
+   m_counter(!ptr?NULL:new __TSharedLinkCounter()){
+   if (m_ptr){
+      ++m_counter.shared;
+      if (__IsEnableSharedFromThis(m_ptr)){
+         __InitEnableSharedFromThis(ptr,this);
+      }
+   }
+   
+}
 //---------------------------------------------------------------------------
 template<typename Type>
 TSharedPtr::~TSharedPtr(){
    if (!m_counter) return;
-   if (!--m_counter.shared){
-      DEL(m_ptr);
-      if (!m_counter.weak)
-         DEL(m_counter);
-   }
+   Decrease();
 }
 //--------------------------------------------------------------------------
 template<typename Type>
 void TSharedPtr::Reset(Type* ptr=NULL){
    if (ptr==m_ptr) return;
-   if (m_counter!=NULL&&!--m_counter.shared){
-      DEL(m_ptr);
-      if (!m_counter.weak)
-         DELETE(m_counter);
+   if (__IsEnableSharedFromThis(ptr)){
+      this=__CloneEnableSharedFromThis(ptr);
+      return;
    }
+   Decrease();
    m_ptr=ptr;
    if (m_ptr){
       m_counter=new __TSharedLinkCounter();
       ++m_counter.shared;
    }
 }
-//--------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 template<typename Type>
 void TSharedPtr::Swap(TSharedPtr<Type>& other){
@@ -84,19 +94,22 @@ void TSharedPtr::Swap(TSharedPtr<Type>& other){
 template<typename Type>
 void TSharedPtr::operator =(TSharedPtr<Type> &other){
    if (m_ptr==other.m_ptr) return;
-   if (m_counter!=NULL&&!--m_counter.shared) {
-      delete m_ptr;
-      if (!m_counter.weak)
-         delete m_counter;
-   }
+   Decrease();
    m_ptr=other.m_ptr;
    m_counter=other.m_counter;
    if (m_counter!=NULL) ++m_counter.shared;
 }
+template<typename Type>
+void TSharedPtr::Decrease(){
+   if (!m_counter)
+      return;
+   if (!--m_counter.shared){
+      DEL(m_ptr);
+      // Can destroy in TEnableSharedFromThis<Type> in TWeakPtr<Type>
+      if (CheckPointer(m_counter)!=POINTER_INVALID && !m_counter.weak)
+         DEL(m_counter);
+   }
+}
 
 template<typename Type>
 void Swap(TSharedPtr<Type>& l,TSharedPtr<Type>& r) {l.Swap(r);}
-
-class A{
-   int a;
-};

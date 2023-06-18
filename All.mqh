@@ -2,3 +2,4 @@
 #include "Common/Event.mqh"
 #include "Env.mqh"
 #include "Math.mqh"
+#include "Memory.mqh"

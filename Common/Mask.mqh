@@ -52,10 +52,18 @@ public:
    bool CheckRemove(Type mask) {bool ret=Has(mask); m_mask&=(~mask); return ret;}
    template<typename Type1>
    bool CheckRemove(const TMaskBase<Type1>& other) {bool ret=Has(other); m_mask&=(~other.Get()); return ret;}
-private:
+   void Clear() {m_mask=0;}
+   void SetAll();
+protected:
    Type m_mask;
 };
-
+//-------------------------------------------
+template<typename Type>
+void TMaskBase::SetAll(){
+   Clear();
+   m_mask=~m_mask;
+}
+//------------------------------------------
 class TMask:public TMaskBase<_tSizeT>{
 public:
    TMask():TMaskBase<_tSizeT>(){}

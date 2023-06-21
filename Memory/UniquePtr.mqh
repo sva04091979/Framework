@@ -14,7 +14,7 @@ public:
    Type* Release();
    void Swap(TUniquePtr<Type>& other);
    void operator =(Type* ptr) {Reset(ptr);}
-   bool operator !() {return !m_ptr;}
+   bool operator !() const {return !m_ptr;}
    bool IsInit() const {return m_ptr!=NULL;}
    bool operator ==(const TUniquePtr<Type>& other) const {return m_ptr==other.m_ptr;}
    bool operator !=(const TUniquePtr<Type>& other) const {return m_ptr!=other.m_ptr;}

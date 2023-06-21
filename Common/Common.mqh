@@ -8,3 +8,19 @@
 
 #define DLOG Print
 #define QUOTES(text) #text
+
+#define _rv(dVal) (TRVWrape(dVal)).cVal
+
+template<typename T>
+class __TRVWrape{
+public:
+   T m_val;
+   TRVWrape(T val):m_val(val){}
+   TRVWrape(TRVWrape& other){this=other;}
+};
+
+template<typename T>
+__TRVWrape<T> TRVWrape(T val){
+   __TRVWrape)<T> ret(val);
+   return ret;
+}

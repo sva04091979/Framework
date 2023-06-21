@@ -30,7 +30,7 @@ public:
    void operator =(TSharedPtr<Type> &other);
    void operator =(Type* ptr) {Reset(ptr);}
    _tSizeT Count() {return !m_counter?0:m_counter.shared;}
-   bool operator !() {return !m_ptr;}
+   bool operator !() const {return !m_ptr;}
    bool IsInit() const {return m_ptr!=NULL;}
    bool operator ==(const TSharedPtr<Type>& other) const {return m_ptr==other.m_ptr;}
    bool operator !=(const TSharedPtr<Type>& other) const {return m_ptr!=other.m_ptr;}

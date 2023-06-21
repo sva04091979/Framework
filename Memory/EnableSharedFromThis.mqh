@@ -8,7 +8,7 @@ public:
    static bool __IsIt(const TEnableSharedFromThis*) {return true;}
    static bool __IsIt(const void*) {return false;}
    static void __InitEnableSharedFromThis(TEnableSharedFromThis* obj,TSharedPtr<Type>& ptr) {obj.__SetPtr(ptr);}
-   static void __InitEnableSharedFromThis(void* obj,void* ptr) {}
+   static void __InitEnableSharedFromThis(void* obj,TSharedPtr<Type>& ptr) {}
    static TSharedPtr<Type> __CloneEnableSharedFromThis(TEnableSharedFromThis* obj) {return obj.SharedFromThis();}
    static TSharedPtr<Type> __CloneEnableSharedFromThis(void* obj) {return TSharedPtr<Type>();}
    TWeakPtr<Type> WeakFromThis() {return m_val;}

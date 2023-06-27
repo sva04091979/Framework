@@ -3,8 +3,8 @@
 template<typename Type>
 class TMaskBase{
 protected:
-   TMaskBase():m_mask(0){}
-   TMaskBase(Type mask):m_mask(mask){}
+   TMaskBase():m_mask(0),m_full(~(Type)0){}
+   TMaskBase(Type mask):m_mask(mask),m_full(~(Type)0){}
    TMaskBase(const TMaskBase& other):m_mask(other.m_mask){}
 public:
    TMaskBase* operator=(Type mask){m_mask=mask; return &this;}
@@ -13,7 +13,11 @@ public:
    bool Has(Type mask) const {return bool(m_mask&mask);} 
    template<typename Type1>
    bool Has(const TMaskBase<Type1>& other) const {return m_mask.Has(mask.Get());}
+   bool IsEmpty() const {return !m_mask;}
+   bool IsFull() const {return m_mask==m_full;}
+   bool HaveAny() const {return m_mask!=0;}
    Type Get() const {return m_mask;}
+   Type Mask() const {return m_full;}
    TMaskBase* operator |= (Type mask) {m_mask|=mask; return &this;}
    template<typename Type1>
    TMaskBase* operator |= (const TMaskBase<Type1>& other) {m_mask|=other.Get(); return &this;}
@@ -53,17 +57,12 @@ public:
    template<typename Type1>
    bool CheckRemove(const TMaskBase<Type1>& other) {bool ret=Has(other); m_mask&=(~other.Get()); return ret;}
    void Clear() {m_mask=0;}
-   void SetAll();
+   void SetAll() {m_mask=m_full;}
 protected:
    Type m_mask;
+   const Type m_full;
 };
-//-------------------------------------------
-template<typename Type>
-void TMaskBase::SetAll(){
-   Clear();
-   m_mask=~m_mask;
-}
-//------------------------------------------
+
 class TMask:public TMaskBase<_tSizeT>{
 public:
    TMask():TMaskBase<_tSizeT>(){}
@@ -72,12 +71,20 @@ public:
    TMask(const TMaskBase<Type1>& other):TMaskBase<_tSizeT>(other){}
 };
 
-class TMaskLong:public TMaskBase<ulong>{
+class TMaskChar:public TMaskBase<uchar>{
 public:
-   TMaskLong():TMaskBase<ulong>(){}
-   TMaskLong(ulong mask):TMaskBase<ulong>(mask){}
+   TMaskChar():TMaskBase<uchar>(){}
+   TMaskChar(uchar mask):TMaskBase<uchar>(mask){}
    template<typename Type1>
-   TMaskLong(const TMaskBase<Type1>& other):TMaskBase<ulong>(other){}
+   TMaskChar(const TMaskBase<Type1>& other):TMaskBase<uchar>(other){}
+};
+
+class TMaskShort:public TMaskBase<ushort>{
+public:
+   TMaskShort():TMaskBase<ushort>(){}
+   TMaskShort(ushort mask):TMaskBase<ushort>(mask){}
+   template<typename Type1>
+   TMaskShort(const TMaskBase<Type1>& other):TMaskBase<ushort>(other){}
 };
 
 class TMaskInt:public TMaskBase<uint>{
@@ -86,4 +93,12 @@ public:
    TMaskInt(uint mask):TMaskBase<uint>(mask){}
    template<typename Type1>
    TMaskInt(const TMaskBase<Type1>& other):TMaskBase<uint>(other){}
+};
+
+class TMaskLong:public TMaskBase<ulong>{
+public:
+   TMaskLong():TMaskBase<ulong>(){}
+   TMaskLong(ulong mask):TMaskBase<ulong>(mask){}
+   template<typename Type1>
+   TMaskLong(const TMaskBase<Type1>& other):TMaskBase<ulong>(other){}
 };

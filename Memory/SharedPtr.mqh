@@ -55,7 +55,6 @@ TSharedPtr::TSharedPtr(Type* ptr):
          __InitEnableSharedFromThis(ptr,this);
       }
    }
-   
 }
 //---------------------------------------------------------------------------
 template<typename Type>
@@ -67,7 +66,7 @@ TSharedPtr::~TSharedPtr(){
 template<typename Type>
 void TSharedPtr::Reset(Type* ptr=NULL){
    if (ptr==m_ptr) return;
-   if (__IsEnableSharedFromThis(ptr)){
+   if (ptr && __IsEnableSharedFromThis(ptr)){
       this=__CloneEnableSharedFromThis(ptr);
       return;
    }
@@ -99,6 +98,7 @@ void TSharedPtr::operator =(TSharedPtr<Type> &other){
    m_counter=other.m_counter;
    if (m_counter!=NULL) ++m_counter.shared;
 }
+
 template<typename Type>
 void TSharedPtr::Decrease(){
    if (!m_counter)

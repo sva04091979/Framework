@@ -16,7 +16,7 @@ private:
 public:
    TSharedPtr():m_ptr(NULL),m_counter(NULL){}
    TSharedPtr(Type* ptr);
-   TSharedPtr(TSharedPtr<Type> &other);
+   TSharedPtr(const TSharedPtr<Type> &other);
    TSharedPtr(Type* ptr,__TSharedLinkCounter* _count):m_ptr(ptr),m_counter(!ptr?NULL:_count){if (m_counter!=NULL) ++m_counter.shared;}
   ~TSharedPtr();
    template<typename T1>
@@ -27,7 +27,7 @@ public:
    __TSharedLinkCounter* Counter() const {return m_counter;} 
    void Reset(Type* ptr=NULL);
    void Swap(TSharedPtr<Type>& other);
-   void operator =(TSharedPtr<Type> &other);
+   void operator =(const TSharedPtr<Type> &other);
    void operator =(Type* ptr) {Reset(ptr);}
    _tSizeT Count() {return !m_counter?0:m_counter.shared;}
    bool operator !() const {return !m_ptr;}
@@ -39,7 +39,7 @@ private:
 };
 //--------------------------------------------------------------------------
 template<typename Type>
-TSharedPtr::TSharedPtr(TSharedPtr<Type> &other){
+TSharedPtr::TSharedPtr(const TSharedPtr<Type> &other){
    m_ptr=other.m_ptr;
    m_counter=other.m_counter;
    if (m_counter!=NULL) ++m_counter.shared;
@@ -91,7 +91,7 @@ void TSharedPtr::Swap(TSharedPtr<Type>& other){
 }
 //--------------------------------------------------------------------------
 template<typename Type>
-void TSharedPtr::operator =(TSharedPtr<Type> &other){
+void TSharedPtr::operator =(const TSharedPtr<Type> &other){
    if (m_ptr==other.m_ptr) return;
    Decrease();
    m_ptr=other.m_ptr;

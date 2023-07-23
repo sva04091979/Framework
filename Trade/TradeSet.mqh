@@ -7,13 +7,15 @@
 
 class TTradeSet{
 public:
-   TTradeSet() {Reset();}
-   TTradeSet(string symbol):m_symbol(symbol) {Reset();}
+   TTradeSet():m_symbol(TSharedPtr<TSymbol>(new TSymbol())) {Reset();}
+   TTradeSet(string symbol):m_symbol(TSharedPtr<TSymbol>(new TSymbol(symbol))) {Reset();}
    TTradeSet(const TTradeSet& other) {this=other;}
    // Get
-   const TSymbol* Symbol() const {return &m_symbol;}
-   TSymbolSnapshot* SymbolState() {return m_symbol.State();}
-   const TSymbolSnapshot* SymbolState() const {return m_symbol.State();}
+   TSharedPtr<TSymbol> SymbolClone() const {return m_symbol;}
+   const TSymbol* SymbolInfo() const {return m_symbol.Get();}
+   TSymbol* SymbolInfo() {return m_symbol.Get();}
+   TSymbolSnapshot* SymbolState() {return SymbolInfo().State();}
+   const TSymbolSnapshot* SymbolState() const {return SymbolInfo().State();}
    ETradeType Type() const {return m_type;}
    ENUM_ORDER_TYPE OrderType() const {return !m_orderType?ORDER_TYPE_BUY:m_orderType.Get().obj;}
    _tDirect Direct() const {return m_tradeDirect;}
@@ -27,7 +29,7 @@ public:
    bool IsSLStrong() const {return m_isSLStrong;}
    bool IsTPStrong() const {return m_isTPStrong;}
    // Set
-   void Symbol(string symbol) {m_symbol.Reset(symbol);}
+   void Symbol(string symbol) {SymbolInfo().Reset(symbol);}
    void Type(ETradeType type) {m_type=type;}
    void Type(ENUM_ORDER_TYPE type) {m_orderType=new TWrape<ENUM_ORDER_TYPE>(type);}
    void Type(_tDirect type) {m_tradeDirect=type;}
@@ -46,9 +48,9 @@ public:
    void Reset();
    
    bool CheckSetUp(TTradeError& err);
-   bool CheckSymbol() const {return m_symbol.Has();}
+   bool CheckSymbol() const {return SymbolInfo().Has();}
    _tDirect CheckType() const;
-   bool CheckVolume() const {return !m_isVolumeStrong || m_symbol.CheckVolume(m_volume);}
+   bool CheckVolume() const {return !m_isVolumeStrong || SymbolInfo().CheckVolume(m_volume);}
    bool ComputeVolume();
    _tDirect ComputeType();
    
@@ -65,13 +67,13 @@ public:
    bool CheckPrice(_tDirect direct,bool isFast) const;
 
    bool Run(TTradeError& err);
-   TSymbolSnapshot* RefreshSymbol() {return m_symbol.Refresh();}
+   TSymbolSnapshot* RefreshSymbol() {return SymbolInfo().Refresh();}
 private:
    _tDirect DetectDirect() const;
    double DetectOpenPrice() const;
    double OpenPriceNow() const;
 private:
-   TSymbol m_symbol;
+   TSharedPtr<TSymbol> m_symbol;
    ETradeType m_type;
    TSharedPtr<TWrape<ENUM_ORDER_TYPE>> m_orderType;
    _tDirect m_tradeDirect;
@@ -106,7 +108,7 @@ void TTradeSet::Reset(){
 bool TTradeSet::CheckSetUp(TTradeError &err) {
    static TTradeError _err;
    _err.Clear();
-   m_symbol.Refresh();
+   SymbolInfo().Refresh();
    if (!CheckSymbol()) _err+=eTradeErrorSymbol;
    if (!CheckVolume()) _err+=eTradeErrorVolume;
    _tDirect direct=CheckType();
@@ -120,7 +122,7 @@ bool TTradeSet::CheckSetUp(TTradeError &err) {
    }
    double openPrice=DetectOpenPrice();
    if (!openPrice)
-      openPrice=m_symbol.PriceFast(direct);
+      openPrice=SymbolInfo().PriceFast(direct);
    if (!CheckSL(direct,openPrice)) _err+=eTradeErrorSL;
    if (!CheckTP(direct,openPrice)) _err+=eTradeErrorTP;
    err+=_err;
@@ -128,7 +130,7 @@ bool TTradeSet::CheckSetUp(TTradeError &err) {
 }
 //-------------------------------------
 bool TTradeSet::Run(TTradeError &err){
-   m_symbol.Refresh();
+   SymbolInfo().Refresh();
    if (!CheckSymbol()) err+=eTradeErrorSymbol;
    if (!ComputeVolume()) err+=eTradeErrorVolume;
    _tDirect direct=ComputeType();
@@ -143,7 +145,7 @@ bool TTradeSet::Run(TTradeError &err){
    double openPrice=DetectOpenPrice();
    m_price=openPrice;
    if (!openPrice)
-      openPrice=m_symbol.PriceFast(direct);
+      openPrice=SymbolInfo().PriceFast(direct);
    if (!CheckSL(direct,openPrice)) err+=eTradeErrorSL;
    if (!CheckTP(direct,openPrice)) err+=eTradeErrorTP;
    return err.IsEmpty();
@@ -170,10 +172,10 @@ bool TTradeSet::ComputeVolume() {
       return false;
    if (m_isPendingStrong)
       return true;
-   if (!m_symbol.CheckMinLot(m_volume))
-      m_volume=m_symbol.LotMin();
-   else if (!m_symbol.CheckMaxLot(m_volume))
-      m_volume=m_symbol.LotMax();
+   if (!SymbolInfo().CheckMinLot(m_volume))
+      m_volume=SymbolInfo().LotMin();
+   else if (!SymbolInfo().CheckMaxLot(m_volume))
+      m_volume=SymbolInfo().LotMax();
    return true;
 }
 //----------------------------------
@@ -208,11 +210,11 @@ bool TTradeSet::CheckPrice(_tDirect direct,bool isFast) const{
       return true;
    switch(m_type){
       case eTradeTypeAny:
-         return !m_price || !m_isPendingStrong || m_symbol.CheckFreezeLevel(m_symbol.Price(direct,isFast),m_price);
+         return !m_price || !m_isPendingStrong || SymbolInfo().CheckFreezeLevel(SymbolInfo().Price(direct,isFast),m_price);
       case eTradeTypeMarket:
          return true;
       case eTradeTypePending:
-         return m_price>0.0 && (!m_isPendingStrong || m_symbol.CheckFreezeLevel(m_symbol.Price(direct,isFast),m_price));
+         return m_price>0.0 && (!m_isPendingStrong || SymbolInfo().CheckFreezeLevel(SymbolInfo().Price(direct,isFast),m_price));
    }
    return false;
 }
@@ -227,9 +229,9 @@ bool TTradeSet::CheckSL(_tDirect direct,double openPrice) const{
    if (m_sl>0.0){
       if (m_slPoint>0.0)
          return false;
-      return m_symbol.CheckStopLevel(openPrice,m_sl);    
+      return SymbolInfo().CheckStopLevel(openPrice,m_sl);    
    }
-   return m_symbol.CheckStopLevel(m_slPoint);
+   return SymbolInfo().CheckStopLevel(m_slPoint);
 }
 //--------------------------------------
 bool TTradeSet::CheckTP(_tDirect direct,double openPrice) const{
@@ -242,9 +244,9 @@ bool TTradeSet::CheckTP(_tDirect direct,double openPrice) const{
    if (m_tp>0.0){
       if (m_tpPoint>0.0)
          return false;
-      return m_symbol.CheckStopLevel(openPrice,m_tp);    
+      return SymbolInfo().CheckStopLevel(openPrice,m_tp);    
    }
-   return m_symbol.CheckStopLevel(m_tpPoint);
+   return SymbolInfo().CheckStopLevel(m_tpPoint);
 }
 //------------------------------------
 void TTradeSet::StrongTrade(bool isStrong){

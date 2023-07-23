@@ -1,12 +1,20 @@
 #define __RunTradeDefine
 
-#include "../Event.mqh"
+#include "../Common/Event.mqh"
 
 #include "TradeInit.mqh"
 
+#ifndef __MakeTradeDefine
+class ITrade;
+#ifdef __MQL5__
+ITrade* __MakeTrade(const TTradeInit&);
+#else 
+#endif
+#endif
+
 class ITrade{
 public:
-   ITrade(){}
+   ITrade():m_isBase(false){}
    ITrade(const TTradeInit& tradeInit);
 public:
    _tStaticEvent1(EventStaticDestroy,const ITrade&);
@@ -18,6 +26,8 @@ public:
    static TTradeInit* Make();
    static TTradeInit* Make(string symbol);
 public:
+   TTradeInit* Init() {return Init(_Symbol);}
+   TTradeInit* Init(string symbol);
    ITrade* Run();
    ITrade* Run(const TTradeInit& init);
 // Work section
@@ -48,9 +58,14 @@ private:
    TTradeError m_error;
    TTradeState m_state;
    TTradeInit m_tradeInit;
+   TSharedPtr<TSymbol> m_symbol;
+   bool m_isBase;
 };
+//-------------------------------------------
 ITrade::ITrade(const TTradeInit& tradeInit):
-   m_tradeInit(tradeInit){
+   m_tradeInit(tradeInit),
+   m_symbol(tradeInit.SymbolClone()),
+   m_isBase(false){
    m_tradeInit.Run(m_error);
    Control();
 }
@@ -70,15 +85,26 @@ ITrade::~ITrade(){
    EventStaticDestroy.Invoke(this);
 }
 //----------------------------------------
+TTradeInit* ITrade::Init(string symbol){
+   m_isBase=true;
+   TTradeInit* ret=m_tradeInit.Init(symbol);
+   m_symbol.Reset();
+   return ret;
+}
+//----------------------------------------
 ITrade* ITrade::Run(const TTradeInit& init){
-   m_tradeInit=init;
+   if (!m_isBase){
+      m_tradeInit=init;
+   }
    m_tradeInit.Run(m_error);
+   m_symbol=m_tradeInit.SymbolClone();
+   Control();
    return &this;
 }
 
 
 ITrade* __RunTrade(const TTradeInit& init) {
-   return new ITrade(init);
+   return __MakeTrade(init);
 }
 
 ITrade* __RunTrade(ITrade& trade,const TTradeInit&init){

@@ -16,8 +16,10 @@ ITrade* __RunTrade(ITrade&,const TTradeInit&);
 
 class TTradeInit{
 public:
-   TTradeInit(){}
-   TTradeInit(string symbol):m_init(symbol){}
+   TTradeInit():m_trade(NULL){}
+   TTradeInit(string symbol):m_init(symbol),m_trade(NULL){}
+   TTradeInit(ITrade& trade):m_trade(&trade){}
+   TTradeInit(string symbol,ITrade& trade):m_init(symbol),m_trade(&trade){}
    TTradeInit(const TTradeInit& other) {this=other;}
 // Init section
 public:
@@ -51,11 +53,13 @@ public:
    TSymbolSnapshot* RefreshSymbol() {return m_init.RefreshSymbol();}
 // Get section
 public:
-   const TSymbol* SymbolInfo() const {return m_init.Symbol();}
+   TSharedPtr<TSymbol> SymbolClone() const {return m_init.SymbolClone();}
+   const TSymbol* SymbolInfo() const {return m_init.SymbolInfo();}
    TSymbolSnapshot* SymbolState() {return m_init.SymbolState();}
    const TSymbolSnapshot* SymbolState() const {return m_init.SymbolState();}
 protected:
    TTradeSet m_init;
+   ITrade* m_trade;
 };
 //--------------------------------------
 void TTradeInit::Reset(){
@@ -73,7 +77,7 @@ TTradeInit* TTradeInit::Symbol(string symbol){
 }
 //---------------------------------------
 ITrade* TTradeInit::Run(){
-   return __RunTrade(this);
+   return !m_trade?__RunTrade(this):Run(m_trade);
 }
 //---------------------------------------
 ITrade* TTradeInit::Run(ITrade& trade){

@@ -1,27 +1,27 @@
 #include "../Common/Mask.mqh"
 
 enum ETradeError{
-   eTradeErrorSymbol=0x1   <<0,
-   eTradeErrorType=0x1     <<1,
-   eTradeErrorVolume=0x1   <<2,
-   eTradeErrorPrice=0x1    <<3,
-   eTradeErrorSL=0x1       <<4,
-   eTradeErrorTP=0x1       <<5
+   e_TradeErrorSymbol=  0x1<<0,
+   e_TradeErrorType=    0x1<<1,
+   e_TradeErrorVolume=  0x1<<2,
+   e_TradeErrorPrice=   0x1<<3,
+   e_TradeErrorSL=      0x1<<4,
+   e_TradeErrorTP=      0x1<<5
 };
 
-class TTradeError:public TMask{
+class TTradeError:public TMaskInt{
 public:
    static string Text(ETradeError code);
 };
 //------------------------------------------
 string TTradeError::Text(ETradeError code){
    switch(code){
-      case eTradeErrorSymbol: return "symbol error";
-      case eTradeErrorType: return "wrong type";
-      case eTradeErrorVolume: return "wrong volume";
-      case eTradeErrorPrice: return "wrong open price";
-      case eTradeErrorSL: return "wrong sl";
-      case eTradeErrorTP: return "wrong tp";
+      case e_TradeErrorSymbol: return "symbol error";
+      case e_TradeErrorType: return "wrong type";
+      case e_TradeErrorVolume: return "wrong volume";
+      case e_TradeErrorPrice: return "wrong open price";
+      case e_TradeErrorSL: return "wrong sl";
+      case e_TradeErrorTP: return "wrong tp";
    }
    return NULL;
 }

@@ -4,7 +4,7 @@ class TSymbolSnapshot{
 public:
    TSymbolSnapshot(){Reset(_Symbol);}
    TSymbolSnapshot(string symbol){Reset(symbol);}
-   TSymbolSnapshot(const TSymbolSnapshot& other) {this=other;}
+   TSymbolSnapshot(const TSymbolSnapshot& other) {this=other; Refresh();}
    void Reset(string symbol);
    string Symbol() const {return m_symbol;}
    double Ask() const {return m_info.ask;}

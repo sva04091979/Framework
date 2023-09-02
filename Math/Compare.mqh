@@ -1,6 +1,21 @@
 #include "../Common/Types.mqh"
 
 template<typename Type1,typename Type2>
+bool Less(Type1 l,Type2 r){
+   return l<r;
+}
+
+template<typename Type1,typename Type2>
+bool Greater(Type1 l,Type2 r){
+   return r<l;
+}
+
+template<typename Type1,typename Type2>
+bool Equally(Type1 l,Type2 r){
+   return l==r;
+}
+
+template<typename Type1,typename Type2>
 _tCompare Compare(Type1 l,Type2 r){
    return l==r?_eEqually:l<r?_eLess:_eMore;
 }

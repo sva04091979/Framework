@@ -1,4 +1,5 @@
 #include "Common/Mask.mqh"
+#include "Common/StartStopController.mqh"
 #include "Event.mqh"
 #include "Env.mqh"
 #include "Math.mqh"

@@ -4,13 +4,13 @@
 
 class TSymbol{
 public:
-   TSymbol() {Reset(_Symbol);}
+   TSymbol() {Reset(NULL);}
    TSymbol(string symbol){Reset(symbol);}
    void Reset(string symbol);
    TSymbolSnapshot* Refresh();
    const TSymbolSnapshot* State() const {return &m_snapshot;}
    TSymbolSnapshot* State() {return &m_snapshot;}  
-   string Symbol() const {return m_symbol;};
+   string Symbol() const {return m_symbol==NULL?_Symbol:m_symbol;};
    double Ask() const {return Get(SYMBOL_ASK);}
    double Bid() const {return Get(SYMBOL_BID);}
    double Last() const {return Get(SYMBOL_LAST);}
@@ -25,6 +25,7 @@ public:
    double FreezeLevelDelta() const {return m_freezeLevelDelta;}
    int Digits() const {return m_digits;}
    int LotDigits() const {return m_lotDigits;}
+   ENUM_SYMBOL_TRADE_EXECUTION Execution() const {return m_execution;}
    
    _tCompare ComparePrice(double l,double r) const {return Compare(l,r,m_digits);}
    _tCompare CompareAsk(double price) const {return ComparePrice(price,Ask());}
@@ -68,12 +69,13 @@ private:
    int m_lotDigits;
    uint m_stopLevel;
    uint m_freezeLevel;
+   ENUM_SYMBOL_TRADE_EXECUTION m_execution;
    bool m_has;
 };
 //--------------------------------------------
 void TSymbol::Reset(string symbol){
    m_symbol=symbol;
-   m_has=(bool)Get(SYMBOL_EXIST);
+   m_has=m_symbol==NULL || (bool)Get(SYMBOL_EXIST);
    if (!m_has)
       return;
    m_point=Get(SYMBOL_POINT);
@@ -86,6 +88,7 @@ void TSymbol::Reset(string symbol){
    m_freezeLevel=(uint)Get(SYMBOL_TRADE_FREEZE_LEVEL);
    m_stopLevelDelta=m_stopLevel*m_point;
    m_freezeLevelDelta=m_freezeLevel*m_point;
+   m_execution=(ENUM_SYMBOL_TRADE_EXECUTION)Get(SYMBOL_TRADE_EXEMODE);
    m_snapshot.Reset(symbol);
 }
 //--------------------------------------------

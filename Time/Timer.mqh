@@ -37,6 +37,7 @@ TTimerBase* TTimerBase::Step(ulong step){
       else
          m_checkPoint+=Type(step-m_step);
    }
+   m_step=step;
    return &this;
 }
 //----------------------------------------

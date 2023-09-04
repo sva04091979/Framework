@@ -10,7 +10,7 @@ public:
    TSymbolSnapshot* Refresh();
    const TSymbolSnapshot* State() const {return &m_snapshot;}
    TSymbolSnapshot* State() {return &m_snapshot;}  
-   string Symbol() const {return m_symbol==NULL?_Symbol:m_symbol;};
+   string Symbol() const {return (m_symbol==NULL||m_symbol=="")?_Symbol:m_symbol;};
    double Ask() const {return Get(SYMBOL_ASK);}
    double Bid() const {return Get(SYMBOL_BID);}
    double Last() const {return Get(SYMBOL_LAST);}
@@ -53,9 +53,9 @@ public:
    double NormalizeVolume(double volume) const {return NormalizeDouble(volume,m_lotDigits);}
    double NormalizePrice(double price) const {return NormalizeDouble(price,m_digits);}
    
-   long Get(ENUM_SYMBOL_INFO_INTEGER e) const {return SymbolInfoInteger(m_symbol,e);}
-   double Get(ENUM_SYMBOL_INFO_DOUBLE e) const {return SymbolInfoDouble(m_symbol,e);}
-   string Get(ENUM_SYMBOL_INFO_STRING e) const {return SymbolInfoString(m_symbol,e);}
+   long Get(ENUM_SYMBOL_INFO_INTEGER e) const {return SymbolInfoInteger(this.Symbol(),e);}
+   double Get(ENUM_SYMBOL_INFO_DOUBLE e) const {return SymbolInfoDouble(this.Symbol(),e);}
+   string Get(ENUM_SYMBOL_INFO_STRING e) const {return SymbolInfoString(this.Symbol(),e);}
 private:
    TSymbolSnapshot m_snapshot;
    string m_symbol;
@@ -75,7 +75,7 @@ private:
 //--------------------------------------------
 void TSymbol::Reset(string symbol){
    m_symbol=symbol;
-   m_has=m_symbol==NULL || (bool)Get(SYMBOL_EXIST);
+   m_has= m_symbol==NULL || m_symbol=="" || (bool)Get(SYMBOL_EXIST);
    if (!m_has)
       return;
    m_point=Get(SYMBOL_POINT);

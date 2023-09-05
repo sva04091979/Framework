@@ -10,21 +10,26 @@ public:
    void Reset();
    void Check(Type currentValue);
    void Check() {_Check();}
-   ulong Delta() const {return m_step;}
+   ulong Step() const {return m_step;}
    Type WaitFor() const {return m_checkPoint;}
    TTimerBase* Step(ulong step);
    TTimerBase* WaitFor(Type checkPoint) {m_checkPoint=checkPoint; return &this;}
-private:
+   bool IsStarted() const {return m_isStart;}
+   void Start() {m_isStart=true;}
+   void Stop() {m_isStart=false;}
+ private:
    virtual void _Check() = 0;
 private:
    ulong m_step;
    Type m_checkPoint;
+   bool m_isStart;
 };
 //----------------------------------------
 template<typename Type>
 void TTimerBase::Reset(){
    m_step=0;
    m_checkPoint=0;
+   m_isStart=false;
 }
 //----------------------------------------
 template<typename Type>
@@ -45,7 +50,8 @@ template<typename Type>
 void TTimerBase::Check(Type currentValue){
    if (!m_checkPoint || currentValue < m_checkPoint)
       return;
-   Event.Invoke(m_checkPoint,currentValue);
+   if (m_isStart)
+      Event.Invoke(m_checkPoint,currentValue);
    if (!m_step)
       m_checkPoint=0;
    else{
@@ -56,9 +62,19 @@ void TTimerBase::Check(Type currentValue){
 
 class TTimerMilli:public TTimerBase<ulong>{
 public:
-   TTimerMilli():TTimerBase<ulong>(){}
+   TTimerMilli():TTimerBase<ulong>(),
+      m_startTime(TimeCurrent()),
+      m_isTester((bool)MQLInfoInteger(MQL_TESTER)){}
 private:
-   void _Check() override {TTimerBase<ulong>::Check(GetTickCount());}
+   void _Check() override {
+      if (m_isTester)
+         TTimerBase<ulong>::Check((TimeCurrent()-m_startTime)*1000);         
+      else  
+         TTimerBase<ulong>::Check(GetTickCount64());
+   }
+private:
+   datetime m_startTime;
+   bool m_isTester;
 };
 
 class TTimerTime:public TTimerBase<datetime>{

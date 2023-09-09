@@ -2,21 +2,28 @@
 
 template<typename Type>
 class TTimerBase{
-   _tEvent2(__STDTimer,Type,Type);
+   _tEvent2(__STDTimer,const void*,Type);
+   _tEvent1(__STDDestroy,const void*);
+   _tEvent1(__STDStart,const void*);
+   _tEvent1(__STDStop,const void*);
 public:
-   Event__STDTimer Event;
+   Event__STDTimer EventTimer;
+   Event__STDDestroy EventDestroy;
+   Event__STDStart EventStart;
+   Event__STDStart EventStop;   
 public:
    TTimerBase() {Reset();}
    void Reset();
    void Check(Type currentValue);
    void Check() {_Check();}
    ulong Step() const {return m_step;}
-   Type WaitFor() const {return m_checkPoint;}
+   Type WaitUntil() const {return m_checkPoint;}
    TTimerBase* Step(ulong step);
-   TTimerBase* WaitFor(Type checkPoint) {m_checkPoint=checkPoint; return &this;}
+   TTimerBase* WaitUntil(Type checkPoint) {m_checkPoint=checkPoint; return &this;}
    bool IsStarted() const {return m_isStart;}
-   void Start() {m_isStart=true;}
-   void Stop() {m_isStart=false;}
+   bool Start() {return State(true);}
+   bool Stop() {return State(false);}
+   bool State(bool isStart);
  private:
    virtual void _Check() = 0;
 private:
@@ -26,10 +33,35 @@ private:
 };
 //----------------------------------------
 template<typename Type>
+TTimerBase::~TTimerBase(){
+   EventDestroy.Invoke(&this);
+   Stop();
+}
+//----------------------------------------
+template<typename Type>
 void TTimerBase::Reset(){
+   Stop();
    m_step=0;
    m_checkPoint=0;
-   m_isStart=false;
+}
+//----------------------------------------
+template<typename Type>
+bool TTimerBase::State(bool isStart){
+   if (isStart==m_isStart)
+      return true;
+   if (isStart){
+      if (m_checkPoint){
+         m_isStart = true;
+         EventStart.Invoke(&this);
+         return true;
+      }
+      return false;
+   }
+   else{
+      m_isStart = false;
+      EventStop.Invoke(&this);
+      return true;
+   }
 }
 //----------------------------------------
 template<typename Type>
@@ -51,7 +83,7 @@ void TTimerBase::Check(Type currentValue){
    if (!m_checkPoint || currentValue < m_checkPoint)
       return;
    if (m_isStart)
-      Event.Invoke(m_checkPoint,currentValue);
+      EventTimer.Invoke(&this,currentValue);
    if (!m_step)
       m_checkPoint=0;
    else{
@@ -63,8 +95,7 @@ void TTimerBase::Check(Type currentValue){
 class TTimerMilli:public TTimerBase<ulong>{
 public:
    TTimerMilli():TTimerBase<ulong>(),
-      m_startTime(TimeCurrent()),
-      m_isTester((bool)MQLInfoInteger(MQL_TESTER)){}
+      m_startTime(m_isTester?TimeCurrent():0){}
 private:
    void _Check() override {
       if (m_isTester)
@@ -74,8 +105,10 @@ private:
    }
 private:
    datetime m_startTime;
-   bool m_isTester;
+   static const bool m_isTester;
 };
+
+const bool TTimerMilli::m_isTester=(bool)MQLInfoInteger(MQL_TESTER);
 
 class TTimerTime:public TTimerBase<datetime>{
 public:

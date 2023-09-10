@@ -2,11 +2,11 @@
 
 class TSymbolSnapshot{
 public:
-   TSymbolSnapshot(){Reset(_Symbol);}
+   TSymbolSnapshot(){Reset(NULL);}
    TSymbolSnapshot(string symbol){Reset(symbol);}
-   TSymbolSnapshot(const TSymbolSnapshot& other) {this=other;}
+   TSymbolSnapshot(const TSymbolSnapshot& other) {this=other; Refresh();}
    void Reset(string symbol);
-   string Symbol() const {return m_symbol;}
+   string Symbol() const {return m_symbol==NULL?_Symbol:m_symbol;}
    double Ask() const {return m_info.ask;}
    double Bid() const {return m_info.bid;}
    double Last() const {return m_info.last;}

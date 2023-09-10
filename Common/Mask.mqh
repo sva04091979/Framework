@@ -3,10 +3,11 @@
 template<typename Type>
 class TMaskBase{
 protected:
-   TMaskBase():m_mask(0),m_full(~(Type)0){}
-   TMaskBase(Type mask):m_mask(mask),m_full(~(Type)0){}
+   TMaskBase():m_mask(0){}
+   TMaskBase(Type mask):m_mask(mask){}
    TMaskBase(const TMaskBase& other):m_mask(other.m_mask){}
 public:
+   static Type Mask() {return ~(Type)0;}
    TMaskBase* operator=(Type mask){m_mask=mask; return &this;}
    template<typename Type1>
    TMaskBase* operator=(const TMaskBase<Type1>& other){m_mask=other.Get(); return &this;}
@@ -14,10 +15,9 @@ public:
    template<typename Type1>
    bool Has(const TMaskBase<Type1>& other) const {return m_mask.Has(mask.Get());}
    bool IsEmpty() const {return !m_mask;}
-   bool IsFull() const {return m_mask==m_full;}
+   bool IsFull() const {return m_mask==Mask();}
    bool HaveAny() const {return m_mask!=0;}
    Type Get() const {return m_mask;}
-   Type Mask() const {return m_full;}
    TMaskBase* operator |= (Type mask) {m_mask|=mask; return &this;}
    template<typename Type1>
    TMaskBase* operator |= (const TMaskBase<Type1>& other) {m_mask|=other.Get(); return &this;}
@@ -57,10 +57,18 @@ public:
    template<typename Type1>
    bool CheckRemove(const TMaskBase<Type1>& other) {bool ret=Has(other); m_mask&=(~other.Get()); return ret;}
    void Clear() {m_mask=0;}
-   void SetAll() {m_mask=m_full;}
+   void SetAll() {m_mask=Mask();}
+   void Set(Type mask,bool isSet){
+      if (isSet) this+=mask;
+      else this-=mask;
+   }
+   template<typename Type1>
+   void Set(const TMaskBase<Type1>& other,bool isSet){
+      if (isSet) this+=other;
+      else this-=other;      
+   }
 protected:
    Type m_mask;
-   const Type m_full;
 };
 
 class TMask:public TMaskBase<_tSizeT>{
